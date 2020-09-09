@@ -151,7 +151,65 @@ Now that we show which player’s turn is next, we should also show when the gam
 function calculateWinner(squares) 
 
 
-dasd
+Storing a History of Moves
+If we mutated the squares array, implementing time travel would be very difficult.
+
+However, we used slice() to create a new copy of the squares array after every move, and treated it as immutable. This will allow us to store every past version of the squares array, and navigate between the turns that have already happened.
+
+We’ll store the past squares arrays in another array called history. The history array represents all board states, from the first to the last move, and has a shape like this:
+
+Now we need to decide which component should own the history state.
+
+Lifting State Up, Again
+We’ll want the top-level Game component to display a list of past moves. It will need access to the history to do that, so we will place the history state in the top-level Game component.
+
+Placing the history state into the Game component lets us remove the squares state from its child Board component. Just like we “lifted state up” from the Square component into the Board component, we are now lifting it up from the Board into the top-level Game component. This gives the Game component full control over the Board’s data, and lets it instruct the Board to render previous turns from the history.
+
+First, we’ll set up the initial state for the Game component within its constructor:
+
+Warning: Each child in an array or iterator should have a unique “key” prop. Check the render method of “Game”.
+
+Let’s discuss what the above warning means.
+
+Picking a Key
+When we render a list, React stores some information about each rendered list item. When we update a list, React needs to determine what has changed. We could have added, removed, re-arranged, or updated the list’s items.
+
+Imagine transitioning from
+
+<li>Alexa: 7 tasks left</li>
+<li>Ben: 5 tasks left</li>
+to
+
+<li>Ben: 9 tasks left</li>
+<li>Claudia: 8 tasks left</li>
+<li>Alexa: 5 tasks left</li>
+In addition to the updated counts, a human reading this would probably say that we swapped Alexa and Ben’s ordering and inserted Claudia between Alexa and Ben. However, React is a computer program and does not know what we intended. Because React cannot know our intentions, we need to specify a key property for each list item to differentiate each list item from its siblings. One option would be to use the strings alexa, ben, claudia. If we were displaying data from a database, Alexa, Ben, and Claudia’s database IDs could be used as keys.
+
+<li key={user.id}>{user.name}: {user.taskCount} tasks left</li>
+When a list is re-rendered, React takes each list item’s key and searches the previous list’s items for a matching key. If the current list has a key that didn’t exist before, React creates a component. If the current list is missing a key that existed in the previous list, React destroys the previous component. If two keys match, the corresponding component is moved. Keys tell React about the identity of each component which allows React to maintain state between re-renders. If a component’s key changes, the component will be destroyed and re-created with a new state.
+
+key is a special and reserved property in React (along with ref, a more advanced feature). When an element is created, React extracts the key property and stores the key directly on the returned element. Even though key may look like it belongs in props, key cannot be referenced using this.props.key. React automatically uses key to decide which components to update. A component cannot inquire about its key.
+
+It’s strongly recommended that you assign proper keys whenever you build dynamic lists. If you don’t have an appropriate key, you may want to consider restructuring your data so that you do.
+
+If no key is specified, React will present a warning and use the array index as a key by default. Using the array index as a key is problematic when trying to re-order a list’s items or inserting/removing list items. Explicitly passing key={i} silences the warning but has the same problems as array indices and is not recommended in most cases.
+
+Keys do not need to be globally unique; they only need to be unique between components and their siblings.
+
+Implementing Time Travel
+In the tic-tac-toe game’s history, each past move has a unique ID associated with it: it’s the sequential number of the move. The moves are never re-ordered, deleted, or inserted in the middle, so it’s safe to use the move index as a key.
+
+In the Game component’s render method, we can add the key as <li key={move}> and React’s warning about keys should disappear:
+If you have extra time or want to practice your new React skills, here are some ideas for improvements that you could make to the tic-tac-toe game which are listed in order of increasing difficulty:
+
+Display the location for each move in the format (col, row) in the move history list.
+Bold the currently selected item in the move list.
+Rewrite Board to use two loops to make the squares instead of hardcoding them.
+Add a toggle button that lets you sort the moves in either ascending or descending order.
+When someone wins, highlight the three squares that caused the win.
+When no one wins, display a message about the result being a draw.
+
+
 
 
 
