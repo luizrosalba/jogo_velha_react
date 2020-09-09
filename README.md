@@ -1,5 +1,6 @@
 - Comecei usando o sandbox em ./DIO
-
+- npm i 
+- npm run build 
 # Aprendendo React pelo site reactjs 
 https://reactjs.org/tutorial/tutorial.html#overview
 
